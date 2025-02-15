@@ -2,8 +2,10 @@ import ezdxf
 import xlwings as xw
 import pandas as pd
 import os
+import tkinter as tk
+from tkinter import filedialog, messagebox
 
-# Definições de cálculo (Exemplo: Peso da chapa por metro quadrado)
+# Definições de cálculo
 PESO_CHAPA_KG_M2 = 7.85  # Exemplo de densidade da chapa
 PRECO_KG = 15.00  # Preço por kg da chapa
 
@@ -12,25 +14,24 @@ def ler_dwg(arquivo_dwg):
     Lê o arquivo DWG e extrai as dimensões dos dutos.
     Retorna uma lista de dicionários com largura, altura, comprimento e peso estimado.
     """
-    doc = ezdxf.readfile(arquivo_dwg)
-    msp = doc.modelspace()
+    try:
+        doc = ezdxf.readfile(arquivo_dwg)
+        msp = doc.modelspace()
+    except Exception as e:
+        messagebox.showerror("Erro", f"Falha ao ler o arquivo DWG.\nErro: {e}")
+        return []
 
     materiais = []
 
-    for entidade in msp.query("LWPOLYLINE"):  # Captura apenas polilinhas (pode ajustar conforme o DWG)
-        if len(entidade.get_points()) >= 4:  # Garante que é um retângulo
+    for entidade in msp.query("LWPOLYLINE"):  
+        if len(entidade.get_points()) >= 4:  
             pontos = entidade.get_points()
-            largura = abs(pontos[1][0] - pontos[0][0])  # Diferença X
-            altura = abs(pontos[2][1] - pontos[1][1])  # Diferença Y
-            comprimento = entidade.dxf.elevation  # Supondo que a elevação seja o comprimento
+            largura = abs(pontos[1][0] - pontos[0][0])  
+            altura = abs(pontos[2][1] - pontos[1][1])  
+            comprimento = entidade.dxf.elevation  
 
-            # Cálculo da área total em metros quadrados
-            area_m2 = (largura / 1000) * (altura / 1000) * comprimento  # Convertendo mm para metros
-
-            # Peso estimado
+            area_m2 = (largura / 1000) * (altura / 1000) * comprimento  
             peso_kg = area_m2 * PESO_CHAPA_KG_M2
-
-            # Preço estimado
             preco_total = peso_kg * PRECO_KG
 
             materiais.append({
@@ -49,46 +50,83 @@ def atualizar_planilha(materiais, caminho_excel):
     Atualiza a planilha do Excel com os materiais extraídos do DWG.
     """
     if not os.path.exists(caminho_excel):
-        print("Erro: Arquivo Excel não encontrado.")
+        messagebox.showerror("Erro", "Arquivo Excel não encontrado.")
         return
-    
-    app = xw.App(visible=False)  # Abre Excel em segundo plano
-    wb = xw.Book(caminho_excel)
-    ws = wb.sheets["Orçamento"]  # Nome da aba a ser preenchida
 
-    # Limpar dados antigos antes de inserir os novos
-    ws.range("A2:F100").clear_contents()
+    try:
+        app = xw.App(visible=False)  
+        wb = xw.Book(caminho_excel)
+        ws = wb.sheets["Orçamento"]  
 
-    # Escrever cabeçalhos
-    ws.range("A1").value = ["Largura (cm)", "Altura (cm)", "Comprimento (m)", "Área (m²)", "Peso (kg)", "Preço (R$)"]
+        ws.range("A2:F100").clear_contents()
+        ws.range("A1").value = ["Largura (cm)", "Altura (cm)", "Comprimento (m)", "Área (m²)", "Peso (kg)", "Preço (R$)"]
+        ws.range("A2").value = [list(mat.values()) for mat in materiais]
 
-    # Preencher os dados
-    ws.range("A2").value = [list(mat.values()) for mat in materiais]
+        wb.save()
+        wb.close()
+        app.quit()
 
-    wb.save()
-    wb.close()
-    app.quit()
+        messagebox.showinfo("Sucesso", "Planilha atualizada com sucesso!")
+    except Exception as e:
+        messagebox.showerror("Erro", f"Falha ao atualizar a planilha.\nErro: {e}")
 
-    print("Planilha atualizada com sucesso!")
-
-def main():
+def selecionar_arquivo_dwg():
     """
-    Executa o fluxo completo do programa.
+    Abre uma janela para o usuário selecionar o arquivo DWG.
     """
-    arquivo_dwg = input("Digite o caminho do arquivo DWG: ")
-    caminho_excel = input("Digite o caminho do arquivo Excel: ")
+    arquivo = filedialog.askopenfilename(filetypes=[("Arquivos AutoCAD", "*.dwg")])
+    if arquivo:
+        entry_dwg.delete(0, tk.END)
+        entry_dwg.insert(0, arquivo)
+
+def selecionar_arquivo_excel():
+    """
+    Abre uma janela para o usuário selecionar o arquivo Excel.
+    """
+    arquivo = filedialog.askopenfilename(filetypes=[("Planilhas Excel", "*.xlsx")])
+    if arquivo:
+        entry_excel.delete(0, tk.END)
+        entry_excel.insert(0, arquivo)
+
+def executar():
+    """
+    Executa o fluxo completo ao clicar no botão.
+    """
+    arquivo_dwg = entry_dwg.get()
+    caminho_excel = entry_excel.get()
 
     if not os.path.exists(arquivo_dwg):
-        print("Erro: Arquivo DWG não encontrado!")
+        messagebox.showerror("Erro", "Selecione um arquivo DWG válido.")
+        return
+    if not os.path.exists(caminho_excel):
+        messagebox.showerror("Erro", "Selecione um arquivo Excel válido.")
         return
 
     materiais = ler_dwg(arquivo_dwg)
 
     if not materiais:
-        print("Nenhum material encontrado no DWG.")
+        messagebox.showwarning("Aviso", "Nenhum material encontrado no DWG.")
         return
 
     atualizar_planilha(materiais, caminho_excel)
 
-if __name__ == "__main__":
-    main()
+# Criar a interface gráfica
+root = tk.Tk()
+root.title("Automação de Orçamentos - Refrigeração")
+root.geometry("500x250")
+
+# Rótulos e campos de entrada
+tk.Label(root, text="Selecione o arquivo DWG:").pack(pady=5)
+entry_dwg = tk.Entry(root, width=50)
+entry_dwg.pack()
+tk.Button(root, text="Procurar", command=selecionar_arquivo_dwg).pack(pady=5)
+
+tk.Label(root, text="Selecione o arquivo Excel:").pack(pady=5)
+entry_excel = tk.Entry(root, width=50)
+entry_excel.pack()
+tk.Button(root, text="Procurar", command=selecionar_arquivo_excel).pack(pady=5)
+
+# Botão para executar
+tk.Button(root, text="Executar", command=executar, bg="green", fg="white").pack(pady=20)
+
+root.mainloop()
