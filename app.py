@@ -63,16 +63,43 @@ def atualizar_planilha(materiais, caminho_excel):
     try:
         app = xw.App(visible=False)  
         wb = xw.Book(caminho_excel)
-        ws = wb.sheets["Orçamento"]  
+
+
+        # Verifica se a planilha "Orçamento" existe
+        if "Orçamento" not in [sheet.name for sheet in wb.sheets]:
+            messagebox.showerror("Erro", 'A planilha "Orçamento" não foi encontrada no arquivo Excel.')
+            wb.close()
+            app.quit()
+            return
+
+
+        ws = wb.sheets["Orçamento"]
+
+
+        # Limpa o conteúdo da planilha
         ws.range("A2:F100").clear_contents()
+
+
+        # Insere os cabeçalhos
         ws.range("A1").value = ["Largura (cm)", "Altura (cm)", "Comprimento (m)", "Área (m²)", "Peso (kg)", "Preço (R$)"]
-        ws.range("A2").value = [list(mat.values()) for mat in materiais]
+
+
+        # Insere os dados
+        if materiais:  # Verifica se há dados para inserir
+            dados = [list(mat.values()) for mat in materiais]
+            ws.range("A2").value = dados
+
+
         wb.save()
         wb.close()
         app.quit()
         messagebox.showinfo("Sucesso", "Planilha atualizada com sucesso!")
     except Exception as e:
         messagebox.showerror("Erro", f"Falha ao atualizar a planilha.\nErro: {e}")
+        if 'wb' in locals():  # Fecha o workbook se ele estiver aberto
+            wb.close()
+        if 'app' in locals():  # Fecha o aplicativo do Excel se estiver aberto
+            app.quit()
 
 
 def selecionar_arquivo_dxf():
@@ -146,4 +173,6 @@ tk.Button(root, text="Executar", command=executar, bg="green", fg="white").pack(
 
 
 root.mainloop()
+
+
 
