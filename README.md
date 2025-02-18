@@ -1,4 +1,5 @@
-# **📐 IA para Automação de Orçamentos no AutoCAD**  
+# **📐 IA para Automação de Orçamentos no AutoCAD** 
+ 
 
 🚀 **Automatize a geração de orçamentos de obras a partir de arquivos DWG!** Este projeto utiliza **Python**, **AutoCAD (DWG)** e **Excel** para extrair medidas de dutos, calcular materiais e preencher automaticamente uma planilha de orçamento.  
 
