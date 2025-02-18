@@ -5,6 +5,7 @@ import tkinter as tk
 from tkinter import filedialog, messagebox
 import ezdxf  # Biblioteca para lidar com arquivos DXF
 
+#Tj7
 
 # Definições de cálculo
 PESO_CHAPA_KG_M2 = 7.85  # Exemplo de densidade da chapa
@@ -173,6 +174,3 @@ tk.Button(root, text="Executar", command=executar, bg="green", fg="white").pack(
 
 
 root.mainloop()
-
-
-
