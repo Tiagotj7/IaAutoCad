@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Formulário de Login</title>
-    <link rel="stylesheet" href="styles.css">
+
 </head>
 <body>
     <div class="login-container">
@@ -12,8 +12,8 @@
             <img src="avatar.jpg" alt="Avatar">
         </div>
         <form id="loginForm">
-            <input type="email" placeholder="Email ID" required>
-            <input type="password" placeholder="Password" required>
+            <input type="email" id="email" placeholder="Email ID" required>
+            <input type="password" id="password" placeholder="Password" required>
             <label>
                 <input type="checkbox"> Lembrar-me
             </label>
@@ -21,11 +21,13 @@
             <button type="submit">LOGIN</button>
         </form>
     </div>
-    <script src="script.js"></script>
+
 </body>
 </html>
 
 <style>
+
+
 
 body {
     display: flex;
@@ -87,13 +89,23 @@ button:hover {
     background-color: #005f6b;
 }
 
+
 </style>
 
 <script>
-
 document.getElementById('loginForm').addEventListener('submit', function(e) {
     e.preventDefault();
-    alert('Login realizado com sucesso!');
-});
+    
+    const userId = "usuario"; // Substitute with your actual user ID
+    const userPassword = "0071232025";
+    
+    const emailInput = document.getElementById('email').value;
+    const passwordInput = document.getElementById('password').value;
 
+    if (emailInput === userId && passwordInput === userPassword) {
+        alert('Login realizado com sucesso!');
+    } else {
+        alert('Email ou senha incorretos. Tente novamente.');
+    }
+});
 </script>
