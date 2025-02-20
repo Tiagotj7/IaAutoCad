@@ -4,15 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Formulário de Login</title>
-
 </head>
 <body>
     <div class="login-container">
         <div class="avatar">
-            <img src="avatar.jpg" alt="Avatar">
+            <img src="src/avatar.jpg" alt="Avatar">
         </div>
         <form id="loginForm">
-            <input type="email" id="email" placeholder="Email ID" required>
+            <input type="text" id="userId" placeholder="User ID" required> <!-- Alterado para type="text" e placeholder para "User ID" -->
             <input type="password" id="password" placeholder="Password" required>
             <label>
                 <input type="checkbox"> Lembrar-me
@@ -22,90 +21,83 @@
         </form>
     </div>
 
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #2f3e46;
+            font-family: Arial, sans-serif;
+        }
+
+        .login-container {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        .avatar {
+            margin-bottom: 20px;
+        }
+
+        .avatar img {
+            border-radius: 50%;
+            height: 5rem;
+        }
+
+        input {
+            width: 90%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        input[type="checkbox"] {
+            margin-right: 5px;
+        }
+
+        a {
+            display: block;
+            margin: 10px 0;
+            color: #007C92;
+            text-decoration: none;
+        }
+
+        button {
+            background-color: #007C92;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #005f6b;
+        }
+    </style>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const userId = "usuario"; // ID correto
+            const userPassword = "0071232025"; // Senha correta
+            
+            const idInput = document.getElementById('userId').value; // Alterado para userId
+            const passwordInput = document.getElementById('password').value;
+
+            if (idInput === userId && passwordInput === userPassword) {
+                alert('Login realizado com sucesso!');
+            } else {
+                alert('ID ou senha incorretos. Tente novamente.');
+            }
+        });
+    </script>
 </body>
 </html>
-
-<style>
-
-
-
-body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background-color: #2f3e46;
-    font-family: Arial, sans-serif;
-}
-
-.login-container {
-    background: rgba(255, 255, 255, 0.8);
-    border-radius: 10px;
-    padding: 20px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-    text-align: center;
-}
-
-.avatar {
-    margin-bottom: 20px;
-
-}
-
-.avatar img {
-    border-radius: 50%;
-    height: 5rem;
-}
-
-input {
-    width: 90%;
-    padding: 10px;
-    margin: 10px 0;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-}
-
-input[type="checkbox"] {
-    margin-right: 5px;
-}
-
-a {
-    display: block;
-    margin: 10px 0;
-    color: #007C92;
-    text-decoration: none;
-}
-
-button {
-    background-color: #007C92;
-    color: white;
-    border: none;
-    padding: 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-button:hover {
-    background-color: #005f6b;
-}
-
-
-</style>
-
-<script>
-document.getElementById('loginForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const userId = "usuario"; // Substitute with your actual user ID
-    const userPassword = "0071232025";
-    
-    const emailInput = document.getElementById('email').value;
-    const passwordInput = document.getElementById('password').value;
-
-    if (emailInput === userId && passwordInput === userPassword) {
-        alert('Login realizado com sucesso!');
-    } else {
-        alert('Email ou senha incorretos. Tente novamente.');
-    }
-});
-</script>
