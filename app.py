@@ -64,7 +64,7 @@ def atualizar_planilha(materiais, caminho_excel):
     except Exception as e:
         return str(e)
 
-@app.route('/processar', methods=['POST'])
+@app.route('/api/processar', methods=['POST'])
 def processar_arquivo():
     if 'arquivo_dxf' not in request.files or 'arquivo_excel' not in request.files:
         return jsonify({"erro": "Arquivos não encontrados"}), 400
