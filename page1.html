@@ -1,26 +1,32 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema</title>
+    <title>Automação de Orçamentos</title>
 </head>
 <body>
+    <h2>Envie um arquivo DXF</h2>
+    <input type="file" id="arquivo_dxf">
+    <button onclick="enviarArquivo()">Enviar</button>
+    <p id="resposta"></p>
 
+    <script>
+        function enviarArquivo() {
+            let arquivo = document.getElementById("arquivo_dxf").files[0];
+            let formData = new FormData();
+            formData.append("arquivo_dxf", arquivo);
 
-    <style>
-
-*{
-    margin: 0;
-    padding: 0;
-}
-
-body{
-    background-color: #2f3e46;
-}
-
-    </style>
-
-    
+            fetch("/processar", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("resposta").innerText = data.mensagem || data.erro;
+            })
+            .catch(error => console.error("Erro:", error));
+        }
+    </script>
 </body>
 </html>
