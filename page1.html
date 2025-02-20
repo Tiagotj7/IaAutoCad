@@ -3,9 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>IA de Automação de Orçamentos - Refrigeração</title>
-
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -60,7 +58,7 @@
         }
 
         .execute-btn {
-            background-color: #4CAF50; /* Verde */
+            background-color: #4CAF50;
             color: white;
         }
 
@@ -72,15 +70,45 @@
 <body>
     <div class="container">
         <h1>Automação de Orçamentos - Refrigeração</h1>
+        
         <label for="dxf-file">Selecione o arquivo DXF:</label>
         <input type="file" id="dxf-file">
-        <button class="search-btn">Procurar</button>
         
         <label for="excel-file">Selecione o arquivo Excel:</label>
         <input type="file" id="excel-file">
-        <button class="search-btn">Procurar</button>
 
-        <button class="execute-btn">Executar</button>
+        <button class="execute-btn" onclick="enviarArquivos()">Executar</button>
+        
+        <p id="resposta"></p>
     </div>
+
+    <script>
+        function enviarArquivos() {
+            let arquivoDXF = document.getElementById("dxf-file").files[0];
+            let arquivoExcel = document.getElementById("excel-file").files[0];
+
+            if (!arquivoDXF || !arquivoExcel) {
+                document.getElementById("resposta").innerText = "Por favor, selecione ambos os arquivos.";
+                return;
+            }
+
+            let formData = new FormData();
+            formData.append("arquivo_dxf", arquivoDXF);
+            formData.append("arquivo_excel", arquivoExcel);
+
+            fetch("http://127.0.0.1:5000/processar", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("resposta").innerText = data.mensagem || data.erro;
+            })
+            .catch(error => {
+                console.error("Erro:", error);
+                document.getElementById("resposta").innerText = "Erro ao processar.";
+            });
+        }
+    </script>
 </body>
 </html>
