@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, send_file
+from flask import Flask, request, jsonify
 import xlwings as xw
 import os
 import ezdxf
@@ -72,18 +72,26 @@ def processar_arquivo():
     arquivo_dxf = request.files['arquivo_dxf']
     arquivo_excel = request.files['arquivo_excel']
 
-    caminho_dxf = "temp.dxf"
-    caminho_excel = "planilha.xlsx"
+    # Define os caminhos para salvar os arquivos temporários
+    caminho_dxf = "C:/Users/tiago/Desktop/temp.dxf"  # Altere para o caminho desejado
+    caminho_excel = "C:/Users/tiago/Desktop/planilha.xlsx"  # Altere para o caminho desejado
 
-    arquivo_dxf.save(caminho_dxf)
-    arquivo_excel.save(caminho_excel)
+    # Cria os diretórios se não existirem
+    os.makedirs(os.path.dirname(caminho_dxf), exist_ok=True)
+    os.makedirs(os.path.dirname(caminho_excel), exist_ok=True)
 
-    materiais = ler_dxf(caminho_dxf)
-    if not materiais:
-        return jsonify({"erro": "Nenhum material encontrado no DXF"}), 400
+    try:
+        arquivo_dxf.save(caminho_dxf)
+        arquivo_excel.save(caminho_excel)
 
-    resultado = atualizar_planilha(materiais, caminho_excel)
-    return jsonify({"mensagem": resultado})
+        materiais = ler_dxf(caminho_dxf)
+        if not materiais:
+            return jsonify({"erro": "Nenhum material encontrado no DXF"}), 400
+
+        resultado = atualizar_planilha(materiais, caminho_excel)
+        return jsonify({"mensagem": resultado})
+    except Exception as e:
+        return jsonify({"erro": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)

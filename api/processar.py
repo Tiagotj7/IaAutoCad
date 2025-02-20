@@ -37,6 +37,33 @@ def ler_dxf(arquivo_dxf):
     except Exception as e:
         return str(e)
 
+def atualizar_planilha(materiais, caminho_excel):
+    if not os.path.exists(caminho_excel):
+        return "Arquivo Excel não encontrado."
+
+    try:
+        app = xw.App(visible=False)
+        wb = xw.Book(caminho_excel)
+        if "Orçamento" not in [sheet.name for sheet in wb.sheets]:
+            wb.close()
+            app.quit()
+            return 'A planilha "Orçamento" não foi encontrada no arquivo Excel.'
+
+        ws = wb.sheets["Orçamento"]
+        ws.range("A2:F100").clear_contents()
+        ws.range("A1").value = ["Largura (cm)", "Altura (cm)", "Comprimento (m)", "Área (m²)", "Peso (kg)", "Preço (R$)"]
+
+        if materiais:
+            dados = [list(mat.values()) for mat in materiais]
+            ws.range("A2").value = dados
+
+        wb.save()
+        wb.close()
+        app.quit()
+        return "Planilha atualizada com sucesso!"
+    except Exception as e:
+        return str(e)
+
 @app.route('/api/processar', methods=['POST'])
 def processar_arquivo():
     if 'arquivo_dxf' not in request.files or 'arquivo_excel' not in request.files:
@@ -45,17 +72,26 @@ def processar_arquivo():
     arquivo_dxf = request.files['arquivo_dxf']
     arquivo_excel = request.files['arquivo_excel']
 
-    caminho_dxf = "/tmp/temp.dxf"
-    caminho_excel = "/tmp/planilha.xlsx"
+    # Define os caminhos para salvar os arquivos temporários
+    caminho_dxf = "C:/Users/tiago/Desktop/temp.dxf"  # Altere para o caminho desejado
+    caminho_excel = "C:/Users/tiago/Desktop/planilha.xlsx"  # Altere para o caminho desejado
 
-    arquivo_dxf.save(caminho_dxf)
-    arquivo_excel.save(caminho_excel)
+    # Cria os diretórios se não existirem
+    os.makedirs(os.path.dirname(caminho_dxf), exist_ok=True)
+    os.makedirs(os.path.dirname(caminho_excel), exist_ok=True)
 
-    materiais = ler_dxf(caminho_dxf)
-    if not materiais:
-        return jsonify({"erro": "Nenhum material encontrado no DXF"}), 400
+    try:
+        arquivo_dxf.save(caminho_dxf)
+        arquivo_excel.save(caminho_excel)
 
-    return jsonify({"mensagem": "Processamento concluído!", "materiais": materiais})
+        materiais = ler_dxf(caminho_dxf)
+        if not materiais:
+            return jsonify({"erro": "Nenhum material encontrado no DXF"}), 400
+
+        resultado = atualizar_planilha(materiais, caminho_excel)
+        return jsonify({"mensagem": resultado, "materiais": materiais})
+    except Exception as e:
+        return jsonify({"erro": str(e)}), 500
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
