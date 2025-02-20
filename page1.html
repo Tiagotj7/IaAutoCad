@@ -1,32 +1,85 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Automação de Orçamentos</title>
+    <link rel="stylesheet" href="styles.css">
+    <title>Automação de Orçamentos - Refrigeração</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            width: 300px;
+        }
+
+        h1 {
+            font-size: 18px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        label {
+            margin-top: 10px;
+            display: block;
+        }
+
+        input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        button {
+            margin: 10px 0;
+            padding: 10px;
+            width: 100%;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .search-btn {
+            background-color: #e0e0e0;
+            color: #333;
+        }
+
+        .execute-btn {
+            background-color: #4CAF50; /* Verde */
+            color: white;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+    </style>
 </head>
 <body>
-    <h2>Envie um arquivo DXF</h2>
-    <input type="file" id="arquivo_dxf">
-    <button onclick="enviarArquivo()">Enviar</button>
-    <p id="resposta"></p>
+    <div class="container">
+        <h1>Automação de Orçamentos - Refrigeração</h1>
+        <label for="dxf-file">Selecione o arquivo DXF:</label>
+        <input type="file" id="dxf-file">
+        <button class="search-btn">Procurar</button>
+        
+        <label for="excel-file">Selecione o arquivo Excel:</label>
+        <input type="file" id="excel-file">
+        <button class="search-btn">Procurar</button>
 
-    <script>
-        function enviarArquivo() {
-            let arquivo = document.getElementById("arquivo_dxf").files[0];
-            let formData = new FormData();
-            formData.append("arquivo_dxf", arquivo);
-
-            fetch("/processar", {
-                method: "POST",
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById("resposta").innerText = data.mensagem || data.erro;
-            })
-            .catch(error => console.error("Erro:", error));
-        }
-    </script>
+        <button class="execute-btn">Executar</button>
+    </div>
 </body>
 </html>
