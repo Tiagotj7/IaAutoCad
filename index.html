@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulário de Login</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="login-container">
+        <div class="avatar">
+            <img src="avatar.jpg" alt="Avatar">
+        </div>
+        <form id="loginForm">
+            <input type="email" placeholder="Email ID" required>
+            <input type="password" placeholder="Password" required>
+            <label>
+                <input type="checkbox"> Lembrar-me
+            </label>
+            <a href="#">Esqueci a senha?</a>
+            <button type="submit">LOGIN</button>
+        </form>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
+
+<style>
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #2f3e46;
+    font-family: Arial, sans-serif;
+}
+
+.login-container {
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+.avatar {
+    margin-bottom: 20px;
+
+}
+
+.avatar img {
+    border-radius: 50%;
+    height: 5rem;
+}
+
+input {
+    width: 90%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+input[type="checkbox"] {
+    margin-right: 5px;
+}
+
+a {
+    display: block;
+    margin: 10px 0;
+    color: #007C92;
+    text-decoration: none;
+}
+
+button {
+    background-color: #007C92;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #005f6b;
+}
+
+</style>
+
+<script>
+
+document.getElementById('loginForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    alert('Login realizado com sucesso!');
+});
+
+</script>
