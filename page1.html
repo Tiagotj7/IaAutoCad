@@ -100,7 +100,9 @@
             formData.append("arquivo_dxf", arquivoDXF);
             formData.append("arquivo_excel", arquivoExcel);
 
-            fetch("http://127.0.0.1:5000/processar", {
+            //Direct from server!
+            
+            fetch("https://ia-auto-cad.vercel.app/api/processar", {
                 method: "POST",
                 body: formData
             })
