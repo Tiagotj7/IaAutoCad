@@ -31,15 +31,11 @@ def ler_dxf(arquivo_dxf):
                     comprimento = entidade.dxf.elevation
                     espessura = min(PESO_CHAPA.keys(), key=lambda x: abs(x - altura))
                     peso_kg = (largura / 1000) * (altura / 1000) * comprimento * PESO_CHAPA[espessura]
-                    preco_total = peso_kg * PRECO_KG
-                    materiais.append({
-                        "Largura (cm)": round(largura, 2),
-                        "Altura (cm)": round(altura, 2),
-                        "Comprimento (m)": round(comprimento, 2),
-                        "Espessura (mm)": round(espessura, 2),
-                        "Peso (kg)": round(peso_kg, 2),
-                        "Preço (R$)": round(preco_total, 2)
-                    })
+                    preco_total = round(peso_kg * PRECO_KG, 2)
+                    materiais.append([
+                        round(largura, 2), round(altura, 2), round(comprimento, 2),
+                        round(espessura, 2), round(peso_kg, 2), preco_total
+                    ])
         return materiais
     except Exception as e:
         messagebox.showerror("Erro", f"Falha ao ler o arquivo DXF.\nErro: {e}")
@@ -62,10 +58,9 @@ def atualizar_planilha(materiais, caminho_excel):
         ws.range("A2:G100").clear_contents()
         ws.range("A1").value = ["Largura (cm)", "Altura (cm)", "Comprimento (m)", "Espessura (mm)", "Peso (kg)", "Preço (R$)"]
         if materiais:
-            dados = [list(mat.values()) for mat in materiais]
-            ws.range("A2").value = dados
-            ws.range(f"E2:E{len(dados) + 1}").number_format = "0.00"
-            ws.range(f"F2:F{len(dados) + 1}").number_format = "R$ #,##0.00"
+            ws.range("A2").value = materiais
+            ws.range("E2:E100").number_format = "0.00"
+            ws.range("F2:F100").number_format = "R$ #,##0.00"
         wb.save()
         wb.close()
         app.quit()
@@ -103,6 +98,8 @@ def executar():
         messagebox.showwarning("Aviso", "Nenhum material encontrado no DXF.")
         return
     atualizar_planilha(materiais, caminho_excel)
+
+
 root = tk.Tk()
 root.title("Automação de Orçamentos - Refrigeração")
 root.geometry("500x250")
