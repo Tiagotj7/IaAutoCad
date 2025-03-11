@@ -3,288 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <link rel="shortcut icon" href="src/favicon1.ico" type="image/x-icon">
-
     <title>Automação de Orçamentos</title>
-
+    <style>
+        * { font-family: Arial, sans-serif; box-sizing: border-box; }
+        body { background-color: #f4f4f4; margin: 0; padding: 0; }
+        .container { display: flex; height: 100vh; }
+        .sidebar { width: 300px; background: white; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+        input, button { width: 100%; padding: 10px; margin-top: 5px; border-radius: 5px; border: 1px solid #ccc; }
+        button { cursor: pointer; color: white; font-weight: bold; }
+        .green { background: green; }
+        .blue { background: blue; }
+        .red { background: red; }
+        .yellow { background: yellow; color: black; }
+        .black { background: black; }
+        .content { flex-grow: 1; padding: 15px; background: white; display: flex; flex-direction: column; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid black; padding: 8px; text-align: center; }
+        th { background: #ddd; }
+        .bottom-buttons { display: flex; gap: 10px; margin-top: auto; padding: 10px; background: white; position: sticky; bottom: 0; }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <div id="frame-arquivos">
-            <label for="file-dxf">Arquivo DXF:</label>
-            <input type="file" id="file-dxf" accept=".dxf">
-            <br>
-            <label for="file-excel">Arquivo Excel:</label>
-            <input type="file" id="file-excel" accept=".xlsx">
-            <br>
-            <button id="executar-btn">Executar</button>
-        </div>
 
-        <label>
-            <input type="checkbox" id="opcao-personalizada"> Opção Personalizada
-        </label>
-
-        <div id="frame-manual" style="display:none;">
-            <div id="frame-topo">
-                <button onclick="editarPeca()">Editar Peça</button>
-                <button onclick="removerPeca()">Remover Peça</button>
-                <button onclick="calcularManual()">Calcular</button>
-            </div>
-
-            <div id="frame-form">
-                <label for="largura">Largura (mm):</label>
-                <input type="number" id="largura">
-                <label for="altura">Altura (mm):</label>
-                <input type="number" id="altura">
-                <label for="comprimento">Comprimento (m):</label>
-                <input type="number" id="comprimento">
-                <label for="espessura">Espessura (mm):</label>
-                <input type="number" id="espessura">
-                <button onclick="adicionarPeca()">Adicionar Peça</button>
-            </div>
-
-            <table id="pecas-table">
-                <thead>
-                    <tr>
-                        <th>Largura (mm)</th>
-                        <th>Altura (mm)</th>
-                        <th>Comprimento (m)</th>
-                        <th>Espessura (mm)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Peças serão adicionadas aqui -->
-                </tbody>
-            </table>
-
-            <div id="resultado"></div>
-        </div>
+<div class="container">
+    <div class="sidebar">
+        <label>Arquivo DXF:</label>
+        <input type="file" id="file-dxf">
+        <label>Arquivo Excel:</label>
+        <input type="file" id="file-excel">
+        <button class="green" onclick="executarOrcamento()">Executar</button>
+        <label>Número de Peças a Adicionar:</label>
+        <input type="number" id="num-pecas">
+        <button class="green" onclick="adicionarMultiplasPecas()">Adicionar Múltiplas Peças</button>
+        <label>Largura (mm):</label>
+        <input type="number" id="largura">
+        <label>Altura (mm):</label>
+        <input type="number" id="altura">
+        <label>Comprimento (m):</label>
+        <input type="number" id="comprimento">
+        <label>Espessura (mm):</label>
+        <input type="number" id="espessura">
+        <button class="blue" onclick="adicionarPeca()">Adicionar Peça</button>
     </div>
 
-    <style>
+    <div class="content">
+        <table>
+            <thead>
+                <tr>
+                    <th>Largura (mm)</th>
+                    <th>Altura (mm)</th>
+                    <th>Comprimento (m)</th>
+                    <th>Espessura (mm)</th>
+                </tr>
+            </thead>
+            <tbody id="pecas-table">
+            </tbody>
+        </table>
 
-/* Estilo geral */
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f9;
-    margin: 0;
-    padding: 0;
-}
-
-/* Contêiner principal */
-.container {
-    width: 90%;
-    max-width: 900px;
-    margin: 20px auto;
-    background: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-}
-
-/* Campos de entrada */
-input[type="file"],
-input[type="number"] {
-    width: calc(100% - 10px);
-    padding: 8px;
-    margin: 5px 0;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-}
-
-/* Botões */
-button {
-    padding: 10px 15px;
-    border: none;
-    border-radius: 5px;
-    color: white;
-    cursor: pointer;
-    transition: background 0.3s;
-}
-
-/* Cores dos botões */
-#executar-btn {
-    background-color: #28a745;
-}
-
-#executar-btn:hover {
-    background-color: #218838;
-}
-
-button[onclick="editarPeca()"] {
-    background-color: #ffcc00;
-    color: black;
-}
-
-button[onclick="editarPeca()"]:hover {
-    background-color: #e6b800;
-}
-
-button[onclick="removerPeca()"] {
-    background-color: #dc3545;
-}
-
-button[onclick="removerPeca()"]:hover {
-    background-color: #c82333;
-}
-
-button[onclick="calcularManual()"] {
-    background-color: #007bff;
-}
-
-button[onclick="calcularManual()"]:hover {
-    background-color: #0056b3;
-}
-
-button[onclick="adicionarPeca()"] {
-    background-color: #ff8c00;
-}
-
-button[onclick="adicionarPeca()"]:hover {
-    background-color: #e07b00;
-}
-
-/* Área da tabela */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-    background: #fff;
-}
-
-th, td {
-    border: 1px solid #ddd;
-    padding: 10px;
-    text-align: center;
-}
-
-th {
-    background-color: #007bff;
-    color: white;
-}
-
-/* Opção personalizada */
-#frame-manual {
-    margin-top: 20px;
-    padding: 15px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    background: #f9f9f9;
-}
-
-/* Checkbox personalizado */
-label input[type="checkbox"] {
-    transform: scale(1.2);
-    margin-right: 5px;
-}
-        
-         </style>
+        <div class="bottom-buttons">
+            <button class="yellow" onclick="editarPeca()">Editar Peça</button>
+            <button class="red" onclick="removerPeca()">Remover Peça</button>
+            <button class="black" onclick="removerTudo()">Remover Tudo</button>
+            <button class="green" onclick="calcularPreco()">Calcular Preço</button>
+        </div>
+        <p id="resultado">Peso Total: 0 kg | Preço Total: R$ 0.00</p>
+    </div>
+</div>
 
 <script>
-
-    const PESO_CHAPA = {
-        0.61: 4.88, 0.68: 5.49, 0.76: 6.1, 0.84: 6.71, 0.91: 7.32, 1.06: 8.54,
-        1.21: 9.76, 1.37: 10.98, 1.52: 12.21, 1.71: 13.73, 1.9: 15.26, 2.28: 18.81,
-        2.66: 21.36, 3.04: 24.41, 3.42: 27.46, 3.8: 30.52, 4.18: 33.57, 4.55: 36.62,
-        4.76: 37.35, 6.35: 49.8, 7.94: 62.25, 9.53: 74.7, 12.7: 99.6, 15.88: 124.49,
-        19.05: 149.39, 22.23: 174.29, 25.4: 199.19, 26.99: 211.64, 28.58: 224.09,
-        30.16: 236.53, 31.75: 249.98, 33.34: 261.43, 34.93: 273.88
-    };
-    const PRECO_KG = 15.00;
-    
     let pecas = [];
-    
-    document.getElementById('opcao-personalizada').addEventListener('change', function() {
-        document.getElementById('frame-manual').style.display = this.checked ? 'block' : 'none';
-    });
-    
     function adicionarPeca() {
-        const largura = parseFloat(document.getElementById('largura').value);
-        const altura = parseFloat(document.getElementById('altura').value);
-        const comprimento = parseFloat(document.getElementById('comprimento').value);
-        const espessura = parseFloat(document.getElementById('espessura').value);
-    
+        let largura = parseFloat(document.getElementById('largura').value);
+        let altura = parseFloat(document.getElementById('altura').value);
+        let comprimento = parseFloat(document.getElementById('comprimento').value);
+        let espessura = parseFloat(document.getElementById('espessura').value);
         if (largura && altura && comprimento && espessura) {
             pecas.push({ largura, altura, comprimento, espessura });
             atualizarTabela();
-            limparCampos();
-        } else {
-            alert("Preencha todos os campos!");
         }
     }
-    
-    function editarPeca() {
-        const index = prompt("Digite o índice da peça que deseja editar:") - 1;
-        if (index >= 0 && index < pecas.length) {
-            const peca = pecas[index];
-            document.getElementById('largura').value = peca.largura;
-            document.getElementById('altura').value = peca.altura;
-            document.getElementById('comprimento').value = peca.comprimento;
-            document.getElementById('espessura').value = peca.espessura;
-            pecas.splice(index, 1);
-            atualizarTabela();
-        } else {
-            alert("Índice inválido!");
-        }
-    }
-    
-    function removerPeca() {
-        const index = prompt("Digite o índice da peça que deseja remover:") - 1;
-        if (index >= 0 && index < pecas.length) {
-            pecas.splice(index, 1);
-            atualizarTabela();
-        } else {
-            alert("Índice inválido!");
-        }
-    }
-    
-    function calcularManual() {
-        let totalPeso = 0;
-        let totalPreco = 0;
-    
-        pecas.forEach(peca => {
-            const { largura, altura, comprimento, espessura } = peca;
-            if (!PESO_CHAPA[espessura]) {
-                alert("Espessura não encontrada na tabela.");
-                return;
-            }
-    
-            const pesoKg = (largura / 1000) * (altura / 1000) * comprimento * PESO_CHAPA[espessura];
-            const precoTotal = pesoKg * PRECO_KG;
-            totalPeso += pesoKg;
-            totalPreco += precoTotal;
-        });
-    
-        document.getElementById('resultado').innerText = `Peso Total: ${totalPeso.toFixed(2)} kg | Preço Total: R$ ${totalPreco.toFixed(2)}`;
-    }
-    
     function atualizarTabela() {
-        const tbody = document.querySelector('#pecas-table tbody');
+        let tbody = document.getElementById('pecas-table');
         tbody.innerHTML = '';
         pecas.forEach((peca, index) => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
+            let row = `<tr>
                 <td>${peca.largura}</td>
                 <td>${peca.altura}</td>
                 <td>${peca.comprimento}</td>
                 <td>${peca.espessura}</td>
-            `;
-            tbody.appendChild(row);
+            </tr>`;
+            tbody.innerHTML += row;
         });
     }
-    
-    function limparCampos() {
-        document.getElementById('largura').value = '';
-        document.getElementById('altura').value = '';
-        document.getElementById('comprimento').value = '';
-        document.getElementById('espessura').value = '';
+    function calcularPreco() {
+        let totalPeso = pecas.length * 10; 
+        let totalPreco = totalPeso * 15;
+        document.getElementById('resultado').innerText = `Peso Total: ${totalPeso} kg | Preço Total: R$ ${totalPreco}`;
     }
-    
-    
-     </script>
+    function removerTudo() {
+        pecas = [];
+        atualizarTabela();
+        document.getElementById('resultado').innerText = `Peso Total: 0 kg | Preço Total: R$ 0.00`;
+    }
+</script>
 
 </body>
 </html>
-
-
