@@ -53,17 +53,6 @@ def salvar_estado():
     for item in tree.get_children():
         estado_salvo.append(tree.item(item, "values"))
 
-# Função para reverter para o estado salvo
-def reverter():
-    global estado_salvo
-    if estado_salvo:
-        # Salvar o estado atual antes de reverter
-        salvar_estado()
-        for item in tree.get_children():
-            tree.delete(item)
-        # Restaurar o estado salvo
-        for valores in estado_salvo:
-            tree.insert("", "end", values=valores)
 
 # Função para remover peça da tabela manual
 def remover_peca():
@@ -127,10 +116,8 @@ def limpar_campos():
     entry_espessura.delete(0, tk.END)
     entry_num_pecas.delete(0, tk.END)
 
-
-
 # Função para remover tudo da tabela manual
-def remover_tudo():
+def remover():
     global estado_salvo
     # Salvar o estado antes de remover todos os itens
     salvar_estado()
@@ -139,7 +126,7 @@ def remover_tudo():
     # Não é necessário chamar salvar_estado() novamente, pois o estado já foi salvo
 
 # Função para reverter tudo (trazer de volta todos os itens salvos)
-def reverter_tudo():
+def reverter():
     global estado_salvo
     if estado_salvo:
         for item in tree.get_children():
@@ -299,9 +286,7 @@ tree.pack(fill=tk.BOTH, expand=True)
 # Botões de ação
 button_frame = tk.Frame(right_frame)
 button_frame.pack(pady=10)
-tk.Button(button_frame, text="Salvar", command=salvar_estado, bg="blue", fg="white").pack(side=tk.LEFT, padx=5)
 tk.Button(button_frame, text="Reverter", command=reverter, bg="yellow", fg="black").pack(side=tk.LEFT, padx=5)
-tk.Button(button_frame, text="Reverter Tudo", command=reverter_tudo, bg="yellow", fg="black").pack(side=tk.LEFT, padx=5)
 tk.Button(button_frame, text="Remover Peça", command=remover_peca, bg="red", fg="white").pack(side=tk.LEFT, padx=5)
 tk.Button(button_frame, text="Remover Tudo", command=remover_tudo, bg="black", fg="white").pack(side=tk.LEFT, padx=5)
 tk.Button(button_frame, text="Editar Peça", command=editar_peca, bg="orange", fg="black").pack(side=tk.LEFT, padx=5)
