@@ -16,14 +16,14 @@ PESO_CHAPA = {
 }
 PRECO_KG = 15.00  # Preço do kg do material
 
-# Variável global para armazenar o estado original
-estado_original = []
+# Variável global para armazenar o estado dos itens salvos
+estado_salvo = []
 
 # Função para adicionar peça na tabela manual
 def adicionar_peca():
     if entry_largura.get() and entry_altura.get() and entry_comprimento.get() and entry_espessura.get():
         tree.insert("", "end", values=(entry_largura.get(), entry_altura.get(), entry_comprimento.get(), entry_espessura.get()))
-        salvar_estado()  # Salvar o estado após a inserção
+        salvar_estado()  # Salvar estado após adicionar a peça
         limpar_campos()
 
 # Função para adicionar múltiplas peças
@@ -34,7 +34,7 @@ def adicionar_multiplas_pecas():
         for _ in range(num_pecas):
             if entry_largura.get() and entry_altura.get() and entry_comprimento.get() and entry_espessura.get():
                 tree.insert("", "end", values=(entry_largura.get(), entry_altura.get(), entry_comprimento.get(), entry_espessura.get()))
-        salvar_estado()  # Salvar o estado após a inserção
+        salvar_estado()  # Salvar estado após adicionar as peças
         limpar_campos()
     except ValueError:
         messagebox.showerror("Erro", "Número de peças inválido.")
@@ -44,7 +44,7 @@ def remover_peca():
     item_selecionado = tree.selection()
     if item_selecionado:
         tree.delete(item_selecionado)
-        salvar_estado()  # Salvar o estado após a remoção
+        salvar_estado()  # Salvar estado após remover a peça
 
 # Função para editar peça na tabela manual
 def editar_peca():
@@ -60,7 +60,7 @@ def editar_peca():
         entry_comprimento.insert(0, valores[2])
         entry_espessura.insert(0, valores[3])
         tree.delete(item_selecionado)
-        salvar_estado()  # Salvar o estado após a edição
+        salvar_estado()  # Salvar estado após editar a peça
 
 # Função para calcular peso e preço manualmente
 def calcular_manual():
@@ -90,19 +90,19 @@ def limpar_campos():
     entry_espessura.delete(0, tk.END)
     entry_num_pecas.delete(0, tk.END)
 
-# Função para salvar o estado atual da tabela
+# Função para salvar o estado dos itens
 def salvar_estado():
-    global estado_original
-    estado_original = []
+    global estado_salvo
+    estado_salvo = []
     for item in tree.get_children():
-        estado_original.append(tree.item(item, "values"))
+        estado_salvo.append(tree.item(item, "values"))
 
-# Função para reverter para o estado original
+# Função para reverter para o estado salvo
 def reverter():
-    global estado_original
+    global estado_salvo
     for item in tree.get_children():
         tree.delete(item)
-    for valores in estado_original:
+    for valores in estado_salvo:
         tree.insert("", "end", values=valores)
 
 # Função para remover tudo da tabela manual
@@ -110,6 +110,13 @@ def remover_tudo():
     for item in tree.get_children():
         tree.delete(item)
     salvar_estado()  # Salvar o estado após a remoção de todos os itens
+
+# Função para reverter tudo (trazer de volta todos os itens salvos)
+def reverter_tudo():
+    global estado_salvo
+    if estado_salvo:
+        for valores in estado_salvo:
+            tree.insert("", "end", values=valores)
 
 # Função para ler arquivo DXF
 def ler_dxf(arquivo_dxf):
@@ -220,35 +227,6 @@ entry_excel.pack()
 tk.Button(frame_arquivos, text="Procurar", command=selecionar_arquivo_excel).pack()
 tk.Button(frame_arquivos, text="Executar", command=executar, bg="green", fg="white").pack(pady=10)
 
-frame_manual = tk.Frame(left_frame)
-frame_manual.pack()
-
-frame_topo = tk.Frame(frame_manual)
-frame_topo.pack()
-tk.Button(frame_topo, text="Editar Peça", command=editar_peca, bg="yellow", fg="black").pack(side=tk.LEFT, padx=5)
-tk.Button(frame_topo, text="Remover Peça", command=remover_peca, bg="red", fg="white").pack(side=tk.LEFT, padx=5)
-tk.Button(frame_topo, text="Calcular", command=calcular_manual, bg="blue", fg="white").pack(side=tk.LEFT, padx=5)
-tk.Button(frame_topo, text="Remover Tudo", command=remover_tudo, bg="gray", fg="white").pack(side=tk.LEFT, padx=5)
-tk.Button(frame_topo, text="Reverter", command=reverter, bg="purple", fg="white").pack(side=tk.LEFT, padx=5)
-
-frame_conteudo = tk.Frame(frame_manual)
-frame_conteudo.pack()
-
-# Painel direito para tabela de peças
-right_frame = tk.Frame(panedwindow)
-right_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-panedwindow.add(right_frame)
-
-tree = ttk.Treeview(right_frame, columns=("Largura", "Altura", "Comprimento", "Espessura"), show="headings")
-tree.heading("Largura", text="Largura (mm)")
-tree.heading("Altura", text="Altura (mm)")
-tree.heading("Comprimento", text="Comprimento (m)")
-tree.heading("Espessura", text="Espessura (mm)")
-tree.pack(fill=tk.BOTH, expand=True)
-
-label_resultado = tk.Label(right_frame, text="")
-label_resultado.pack()
-
 # Frame para adicionar peças manualmente à esquerda
 frame_adicionar = tk.Frame(left_frame)
 frame_adicionar.pack()
@@ -275,5 +253,31 @@ entry_espessura = tk.Entry(frame_adicionar)
 entry_espessura.pack()
 
 tk.Button(frame_adicionar, text="Adicionar Peça", command=adicionar_peca, bg="blue", fg="white").pack(pady=10)
+
+# Painel direito para tabela de peças
+right_frame = tk.Frame(panedwindow)
+right_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+panedwindow.add(right_frame)
+
+tree = ttk.Treeview(right_frame, columns=("Largura", "Altura", "Comprimento", "Espessura"), show="headings")
+tree.heading("Largura", text="Largura (mm)")
+tree.heading("Altura", text="Altura (mm)")
+tree.heading("Comprimento", text="Comprimento (m)")
+tree.heading("Espessura", text="Espessura (mm)")
+tree.pack(fill=tk.BOTH, expand=True)
+
+# Botões de ação
+button_frame = tk.Frame(right_frame)
+button_frame.pack(pady=10)
+tk.Button(button_frame, text="Salvar", command=salvar_estado, bg="blue", fg="white").pack(side=tk.LEFT, padx=5)
+tk.Button(button_frame, text="Reverter", command=reverter, bg="yellow", fg="black").pack(side=tk.LEFT, padx=5)
+tk.Button(button_frame, text="Reverter Tudo", command=reverter_tudo, bg="yellow", fg="black").pack(side=tk.LEFT, padx=5)
+tk.Button(button_frame, text="Remover Peça", command=remover_peca, bg="red", fg="white").pack(side=tk.LEFT, padx=5)
+tk.Button(button_frame, text="Remover Tudo", command=remover_tudo, bg="black", fg="white").pack(side=tk.LEFT, padx=5)
+tk.Button(button_frame, text="Editar Peça", command=editar_peca, bg="orange", fg="black").pack(side=tk.LEFT, padx=5)
+tk.Button(button_frame, text="Calcular Preço", command=calcular_manual, bg="green", fg="white").pack(side=tk.LEFT, padx=5)
+
+label_resultado = tk.Label(right_frame, text="Peso Total: 0 kg | Preço Total: R$ 0.00")
+label_resultado.pack()
 
 root.mainloop()
