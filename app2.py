@@ -46,6 +46,41 @@ def remover_peca():
         tree.delete(item_selecionado)
         salvar_estado()  # Salvar estado após remover a peça
 
+# Função para salvar o estado dos itens
+def salvar_estado():
+    global estado_salvo
+    estado_salvo = []
+    for item in tree.get_children():
+        estado_salvo.append(tree.item(item, "values"))
+
+# Função para reverter para o estado salvo
+def reverter():
+    global estado_salvo
+    if estado_salvo:
+        # Salvar o estado atual antes de reverter
+        salvar_estado()
+        for item in tree.get_children():
+            tree.delete(item)
+        # Restaurar o estado salvo
+        for valores in estado_salvo:
+            tree.insert("", "end", values=valores)
+
+# Função para remover peça da tabela manual
+def remover_peca():
+    item_selecionado = tree.selection()
+    if item_selecionado:
+        # Salvar estado antes de remover a peça
+        salvar_estado()
+        tree.delete(item_selecionado)
+
+# Função para remover tudo da tabela manual
+def remover_tudo():
+    global estado_salvo
+    # Salvar o estado antes de remover todos os itens
+    salvar_estado()
+    for item in tree.get_children():
+        tree.delete(item)
+
 # Função para editar peça na tabela manual
 def editar_peca():
     item_selecionado = tree.selection()
@@ -59,8 +94,10 @@ def editar_peca():
         entry_altura.insert(0, valores[1])
         entry_comprimento.insert(0, valores[2])
         entry_espessura.insert(0, valores[3])
+        # Salvar o estado antes de editar a peça
+        salvar_estado()
         tree.delete(item_selecionado)
-        salvar_estado()  # Salvar estado após editar a peça
+
 
 # Função para calcular peso e preço manualmente
 def calcular_manual():
@@ -90,31 +127,24 @@ def limpar_campos():
     entry_espessura.delete(0, tk.END)
     entry_num_pecas.delete(0, tk.END)
 
-# Função para salvar o estado dos itens
-def salvar_estado():
-    global estado_salvo
-    estado_salvo = []
-    for item in tree.get_children():
-        estado_salvo.append(tree.item(item, "values"))
 
-# Função para reverter para o estado salvo
-def reverter():
-    global estado_salvo
-    for item in tree.get_children():
-        tree.delete(item)
-    for valores in estado_salvo:
-        tree.insert("", "end", values=valores)
 
 # Função para remover tudo da tabela manual
 def remover_tudo():
+    global estado_salvo
+    # Salvar o estado antes de remover todos os itens
+    salvar_estado()
     for item in tree.get_children():
         tree.delete(item)
-    salvar_estado()  # Salvar o estado após a remoção de todos os itens
+    # Não é necessário chamar salvar_estado() novamente, pois o estado já foi salvo
 
 # Função para reverter tudo (trazer de volta todos os itens salvos)
 def reverter_tudo():
     global estado_salvo
     if estado_salvo:
+        for item in tree.get_children():
+            tree.delete(item)
+        # Restaurar o estado salvo
         for valores in estado_salvo:
             tree.insert("", "end", values=valores)
 
