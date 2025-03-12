@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automação de Orçamentos</title>
+    <style>
+        * { font-family: Arial, sans-serif; box-sizing: border-box; }
+        body { background-color: #f4f4f4; margin: 0; padding: 0; }
+        .container { display: flex; height: 100vh; }
+        .sidebar { width: 300px; background: white; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+        input, button { width: 100%; padding: 10px; margin-top: 5px; border-radius: 5px; border: 1px solid #ccc; }
+        button { cursor: pointer; color: white; font-weight: bold; }
+        .green { background: green; }
+        .blue { background: blue; }
+        .red { background: red; }
+        .yellow { background: yellow; color: black; }
+        .black { background: black; }
+        .content { flex-grow: 1; padding: 15px; background: white; display: flex; flex-direction: column; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid black; padding: 8px; text-align: center; }
+        th { background: #ddd; }
+        .bottom-buttons { display: flex; gap: 10px; margin-top: auto; padding: 10px; background: white; position: sticky; bottom: 0; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="sidebar">
+        <label>Número de Peças a Adicionar:</label>
+        <input type="number" id="num-pecas">
+        <button class="green" onclick="adicionarMultiplasPecas()">Adicionar Múltiplas Peças</button>
+        <label>Largura (mm):</label>
+        <input type="number" id="largura">
+        <label>Altura (mm):</label>
+        <input type="number" id="altura">
+        <label>Comprimento (m):</label>
+        <input type="number" id="comprimento">
+        <label>Espessura (mm):</label>
+        <input type="number" id="espessura">
+        <button class="blue" onclick="adicionarPeca()">Adicionar Peça</button>
+    </div>
+
+    <div class="content">
+        <table>
+            <thead>
+                <tr>
+                    <th>Largura (mm)</th>
+                    <th>Altura (mm)</th>
+                    <th>Comprimento (m)</th>
+                    <th>Espessura (mm)</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="pecas-table"></tbody>
+        </table>
+
+        <div class="bottom-buttons">
+            <button class="yellow" onclick="editarPeca()">Editar Peça</button>
+            <button class="red" onclick="removerPeca()">Remover Peça</button>
+            <button class="black" onclick="removerTudo()">Remover Tudo</button>
+            <button class="green" onclick="calcularPreco()">Calcular Preço</button>
+        </div>
+        <p id="resultado">Peso Total: 0 kg | Preço Total: R$ 0.00</p>
+    </div>
+</div>
+
+<script>
+    let pecas = [];
+    function adicionarPeca() {
+        let largura = parseFloat(document.getElementById('largura').value);
+        let altura = parseFloat(document.getElementById('altura').value);
+        let comprimento = parseFloat(document.getElementById('comprimento').value);
+        let espessura = parseFloat(document.getElementById('espessura').value);
+        if (largura && altura && comprimento && espessura) {
+            pecas.push({ largura, altura, comprimento, espessura });
+            atualizarTabela();
+        }
+    }
+    function adicionarMultiplasPecas() {
+        let num = parseInt(document.getElementById('num-pecas').value);
+        if (!isNaN(num) && num > 0) {
+            for (let i = 0; i < num; i++) {
+                adicionarPeca();
+            }
+        }
+    }
+    function atualizarTabela() {
+        let tbody = document.getElementById('pecas-table');
+        tbody.innerHTML = '';
+        pecas.forEach((peca, index) => {
+            let row = `<tr>
+                <td>${peca.largura}</td>
+                <td>${peca.altura}</td>
+                <td>${peca.comprimento}</td>
+                <td>${peca.espessura}</td>
+                <td><button onclick="editarPeca(${index})">✏️</button>
+                <button onclick="removerPeca(${index})">🗑️</button></td>
+            </tr>`;
+            tbody.innerHTML += row;
+        });
+    }
+    function editarPeca(index) {
+        let peca = pecas[index];
+        document.getElementById('largura').value = peca.largura;
+        document.getElementById('altura').value = peca.altura;
+        document.getElementById('comprimento').value = peca.comprimento;
+        document.getElementById('espessura').value = peca.espessura;
+        pecas.splice(index, 1);
+        atualizarTabela();
+    }
+    function removerPeca(index) {
+        pecas.splice(index, 1);
+        atualizarTabela();
+    }
+    function removerTudo() {
+        pecas = [];
+        atualizarTabela();
+        document.getElementById('resultado').innerText = `Peso Total: 0 kg | Preço Total: R$ 0.00`;
+    }
+    function calcularPreco() {
+        let totalPeso = pecas.length * 10;
+        let totalPreco = totalPeso * 15;
+        document.getElementById('resultado').innerText = `Peso Total: ${totalPeso} kg | Preço Total: R$ ${totalPreco}`;
+    }
+</script>
+
+</body>
+</html>
