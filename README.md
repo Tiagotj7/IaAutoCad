@@ -34,7 +34,9 @@ Com interface de terminal:
 python app.py --dxf "caminho/do/arquivo.dxf" --excel "caminho/da/planilha.xlsx"
 
 Ou utilize a interface gráfica para selecionar os arquivos DXF e Excel diretamente.
-📊 Exemplo de Saída no Excel
+
+###📊 Exemplo de Saída no Excel
+
 | Largura (cm) | Altura (cm) | Comprimento (m) | Área (m²) | Peso (kg) | Preço (R$) |
  |-------------|-------------|----------------|-----------|-----------|-----------|
  | 40         | 30         | 4              | 4.8       | 37.68     | 565.20    |
