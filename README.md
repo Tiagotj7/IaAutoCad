@@ -35,34 +35,10 @@ python app.py --dxf "caminho/do/arquivo.dxf" --excel "caminho/da/planilha.xlsx"
 
 Ou utilize a interface gráfica para selecionar os arquivos DXF e Excel diretamente.
 📊 Exemplo de Saída no Excel
-Largura (cm)
-Altura (cm)
-Comprimento (m)
-Espessura (mm)
-Peso (kg)
-Preço (R$)
-40
-30
-4
-1.5
-37.68
-565.20
-50
-40
-5
-2.0
-78.50
-1177.50
-
-💡 Possíveis Melhorias
-📌 Suporte para mais tipos de materiais (ex.: tubos de cobre).
-📌 Integração com banco de dados para histórico de orçamentos.
-📌 Interface gráfica mais avançada para facilitar o uso.
-📜 Licença
-Este projeto está sob a licença MIT. Sinta-se livre para contribuir e aprimorar!
+| Largura (cm) | Altura (cm) | Comprimento (m) | Área (m²) | Peso (kg) | Preço (R$) |
+ |-------------|-------------|----------------|-----------|-----------|-----------|
+ | 40         | 30         | 4              | 4.8       | 37.68     | 565.20    |
+ | 50         | 40         | 5              | 10.0      | 78.50     | 1177.50   
 
 👷 Desenvolvido para otimizar orçamentos no setor de construção e refrigeração! 🚀
-
-Este formato segue a estrutura típica de um arquivo `README.md`, com seções claras para funcionalidades, instalação, exemplo de saída, melhorias e licenciamento.
-
 
