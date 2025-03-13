@@ -37,7 +37,7 @@ Ou utilize a interface gráfica para selecionar os arquivos DXF e Excel diretame
 
 ```
 
-###📊 Exemplo de Saída no Excel
+📊 Exemplo de Saída no Excel
 
 | Largura (cm) | Altura (cm) | Comprimento (m) | Área (m²) | Peso (kg) | Preço (R$) |
  |-------------|-------------|----------------|-----------|-----------|-----------|
