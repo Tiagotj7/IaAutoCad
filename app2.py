@@ -4,8 +4,12 @@ import os
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 import ezdxf
+from decimal import Decimal, ROUND_HALF_UP, getcontext
 
-# Tabela de pesos por espessura (kg/m²)
+# Configura a precisão (suficiente para nossos cálculos)
+getcontext().prec = 10
+
+# Tabela de pesos por espessura (kg/m²) – mantida para registro, mas não é utilizada no cálculo atual
 PESO_CHAPA = {
     0.61: 4.88, 0.68: 5.49, 0.76: 6.1, 0.84: 6.71, 0.91: 7.32, 1.06: 8.54,
     1.21: 9.76, 1.37: 10.98, 1.52: 12.21, 1.71: 13.73, 1.9: 15.26, 2.28: 18.81,
@@ -14,15 +18,70 @@ PESO_CHAPA = {
     19.05: 149.39, 22.23: 174.29, 25.4: 199.19, 26.99: 211.64, 28.58: 224.09,
     30.16: 236.53, 31.75: 249.98, 33.34: 261.43, 34.93: 273.88
 }
-PRECO_KG = 15.00  # Preço do kg do material
+
+# Fator de preço padrão (será atualizado conforme o material)
+# Usaremos Decimal para maior precisão. Inicialmente para inox.
+current_preco_kg = Decimal("2.03333")
 
 # Variável global para armazenar o estado dos itens salvos
 estado_salvo = []
 
+# Funções específicas para cada material
+def func_inox():
+    global current_preco_kg
+    # Para inox, fator = 13.42/6.6 ≈ 2.03333
+    current_preco_kg = Decimal("2.03333")
+    entry_largura.delete(0, tk.END)
+    entry_largura.insert(0, "1000")
+    entry_altura.delete(0, tk.END)
+    entry_altura.insert(0, "2000")
+    entry_peso.delete(0, tk.END)
+    entry_peso.insert(0, "6.6")
+    entry_espessura.delete(0, tk.END)
+    entry_espessura.insert(0, "0.84")
+    calcular_manual()
+
+def func_aco():
+    global current_preco_kg
+    # Para aço, fator = 22.46/7.8 ≈ 2.878205128205128205, usamos mais dígitos para precisão exata.
+    current_preco_kg = Decimal("2.878205128205128205")
+    entry_largura.delete(0, tk.END)
+    entry_largura.insert(0, "1200")
+    entry_altura.delete(0, tk.END)
+    entry_altura.insert(0, "2400")
+    entry_peso.delete(0, tk.END)
+    entry_peso.insert(0, "7.8")
+    entry_espessura.delete(0, tk.END)
+    entry_espessura.insert(0, "1.00")
+    calcular_manual()
+
+def func_aluminio():
+    global current_preco_kg
+    # Para alumínio, fator = 18.45/4.1 ≈ 4.5
+    current_preco_kg = Decimal("4.5")
+    entry_largura.delete(0, tk.END)
+    entry_largura.insert(0, "1500")
+    entry_altura.delete(0, tk.END)
+    entry_altura.insert(0, "3000")
+    entry_peso.delete(0, tk.END)
+    entry_peso.insert(0, "4.1")
+    entry_espessura.delete(0, tk.END)
+    entry_espessura.insert(0, "1.50")
+    calcular_manual()
+
+def material_selected(event):
+    material = combo_material.get()
+    if material == "Inox":
+        func_inox()
+    elif material == "Aço":
+        func_aco()
+    elif material == "Alumínio":
+        func_aluminio()
+
 # Função para adicionar peça na tabela manual
 def adicionar_peca():
-    if entry_largura.get() and entry_altura.get() and entry_comprimento.get() and entry_espessura.get():
-        tree.insert("", "end", values=(entry_largura.get(), entry_altura.get(), entry_comprimento.get(), entry_espessura.get()))
+    if entry_largura.get() and entry_altura.get() and entry_peso.get() and entry_espessura.get() and combo_material.get():
+        tree.insert("", "end", values=(entry_largura.get(), entry_altura.get(), entry_peso.get(), entry_espessura.get(), combo_material.get()))
         salvar_estado()  # Salvar estado após adicionar a peça
         limpar_campos()
 
@@ -32,8 +91,8 @@ def adicionar_multiplas_pecas():
     try:
         num_pecas = int(num_pecas)
         for _ in range(num_pecas):
-            if entry_largura.get() and entry_altura.get() and entry_comprimento.get() and entry_espessura.get():
-                tree.insert("", "end", values=(entry_largura.get(), entry_altura.get(), entry_comprimento.get(), entry_espessura.get()))
+            if entry_largura.get() and entry_altura.get() and entry_peso.get() and entry_espessura.get() and combo_material.get():
+                tree.insert("", "end", values=(entry_largura.get(), entry_altura.get(), entry_peso.get(), entry_espessura.get(), combo_material.get()))
         salvar_estado()  # Salvar estado após adicionar as peças
         limpar_campos()
     except ValueError:
@@ -43,8 +102,8 @@ def adicionar_multiplas_pecas():
 def remover_peca():
     item_selecionado = tree.selection()
     if item_selecionado:
+        salvar_estado()  # Salvar estado antes de remover a peça
         tree.delete(item_selecionado)
-        salvar_estado()  # Salvar estado após remover a peça
 
 # Função para salvar o estado dos itens
 def salvar_estado():
@@ -53,20 +112,10 @@ def salvar_estado():
     for item in tree.get_children():
         estado_salvo.append(tree.item(item, "values"))
 
-
-# Função para remover peça da tabela manual
-def remover_peca():
-    item_selecionado = tree.selection()
-    if item_selecionado:
-        # Salvar estado antes de remover a peça
-        salvar_estado()
-        tree.delete(item_selecionado)
-
 # Função para remover tudo da tabela manual
 def remover_tudo():
     global estado_salvo
-    # Salvar o estado antes de remover todos os itens
-    salvar_estado()
+    salvar_estado()  # Salvar o estado antes de remover todos os itens
     for item in tree.get_children():
         tree.delete(item)
 
@@ -77,53 +126,46 @@ def editar_peca():
         valores = tree.item(item_selecionado, "values")
         entry_largura.delete(0, tk.END)
         entry_altura.delete(0, tk.END)
-        entry_comprimento.delete(0, tk.END)
+        entry_peso.delete(0, tk.END)
         entry_espessura.delete(0, tk.END)
+        combo_material.set('')
         entry_largura.insert(0, valores[0])
         entry_altura.insert(0, valores[1])
-        entry_comprimento.insert(0, valores[2])
+        entry_peso.insert(0, valores[2])
         entry_espessura.insert(0, valores[3])
-        # Salvar o estado antes de editar a peça
-        salvar_estado()
+        combo_material.set(valores[4])
+        salvar_estado()  # Salvar o estado antes de editar a peça
         tree.delete(item_selecionado)
 
-
-# Função para calcular peso e preço manualmente
+# Função para calcular preço manualmente usando Decimal
 def calcular_manual():
-    total_peso = 0
-    total_preco = 0
+    total_preco = Decimal("0.00")
     for item in tree.get_children():
         valores = tree.item(item, "values")
         try:
-            largura, altura, comprimento, espessura = map(float, valores)
-            if espessura not in PESO_CHAPA:
-                messagebox.showerror("Erro", "Espessura não encontrada na tabela.")
-                return
-            peso_kg = (largura / 1000) * (altura / 1000) * comprimento * PESO_CHAPA[espessura]
-            preco_total = round(peso_kg * PRECO_KG, 2)
-            total_peso += peso_kg
+            largura, altura, peso, espessura = map(Decimal, valores[:4])
+            preco_total = (peso * current_preco_kg).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
             total_preco += preco_total
-        except ValueError:
+        except Exception:
             messagebox.showerror("Erro", "Erro nos valores inseridos.")
             return
-    label_resultado.config(text=f"Peso Total: {total_peso:.2f} kg | Preço Total: R$ {total_preco:.2f}")
+    label_resultado.config(text=f"Preço Total: R$ {total_preco}")
 
 # Função para limpar campos
 def limpar_campos():
     entry_largura.delete(0, tk.END)
     entry_altura.delete(0, tk.END)
-    entry_comprimento.delete(0, tk.END)
+    entry_peso.delete(0, tk.END)
     entry_espessura.delete(0, tk.END)
     entry_num_pecas.delete(0, tk.END)
+    combo_material.set('')
 
-# Função para remover tudo da tabela manual
+# Função para remover tudo da tabela manual (mesma que remover_tudo)
 def remover():
     global estado_salvo
-    # Salvar o estado antes de remover todos os itens
     salvar_estado()
     for item in tree.get_children():
         tree.delete(item)
-    # Não é necessário chamar salvar_estado() novamente, pois o estado já foi salvo
 
 # Função para reverter tudo (trazer de volta todos os itens salvos)
 def reverter():
@@ -131,7 +173,6 @@ def reverter():
     if estado_salvo:
         for item in tree.get_children():
             tree.delete(item)
-        # Restaurar o estado salvo
         for valores in estado_salvo:
             tree.insert("", "end", values=valores)
 
@@ -147,17 +188,18 @@ def ler_dxf(arquivo_dxf):
                 if len(pontos) >= 4:
                     largura = abs(pontos[1][0] - pontos[0][0])
                     altura = abs(pontos[2][1] - pontos[1][1])
-                    comprimento = entidade.dxf.elevation
+                    # Aqui, 'peso' é lido diretamente (supostamente em kg) a partir da elevação do DXF
+                    peso = entidade.dxf.elevation
                     espessura = min(PESO_CHAPA.keys(), key=lambda x: abs(x - altura))
-                    peso_kg = (largura / 1000) * (altura / 1000) * comprimento * PESO_CHAPA[espessura]
-                    preco_total = round(peso_kg * PRECO_KG, 2)
-                    materiais.append([round(largura, 2), round(altura, 2), round(comprimento, 2), round(espessura, 2), round(peso_kg, 2), preco_total])
+                    preco_total = (Decimal(str(peso)) * current_preco_kg).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+                    # Para DXF, atribuímos "Inox" como material padrão
+                    materiais.append([round(largura, 2), round(altura, 2), round(peso, 2), round(espessura, 2), "Inox", float(preco_total)])
         return materiais
     except Exception as e:
         messagebox.showerror("Erro", f"Falha ao ler o arquivo DXF.\nErro: {e}")
         return []
 
-# Função para atualizar a planilha Excel
+# Função para atualizar a planilha Excel (incluindo o campo Material)
 def atualizar_planilha(materiais, caminho_excel):
     if not os.path.exists(caminho_excel):
         messagebox.showerror("Erro", "Arquivo Excel não encontrado.")
@@ -172,10 +214,10 @@ def atualizar_planilha(materiais, caminho_excel):
             return
         ws = wb.sheets["Orçamento"]
         ws.range("A2:G100").clear_contents()
-        ws.range("A1").value = ["Largura (cm)", "Altura (cm)", "Comprimento (m)", "Espessura (mm)", "Peso (kg)", "Preço (R$)"]
+        # Cabeçalho atualizado para incluir Material
+        ws.range("A1").value = ["Largura (cm)", "Altura (cm)", "Peso (kg)", "Espessura (mm)", "Material", "Preço (R$)"]
         if materiais:
             ws.range("A2").value = materiais
-            ws.range("E2:E100").number_format = "0.00"
             ws.range("F2:F100").number_format = "R$ #,##0.00"
         wb.save()
         wb.close()
@@ -201,7 +243,8 @@ def executar():
         return
     atualizar_planilha(materiais, caminho_excel)
     for material in materiais:
-        tree.insert("", "end", values=material[:4])
+        # Inserindo as cinco colunas: Largura, Altura, Peso, Espessura e Material
+        tree.insert("", "end", values=material[:5])
 
 # Função para selecionar arquivo DXF
 def selecionar_arquivo_dxf():
@@ -261,13 +304,19 @@ tk.Label(frame_adicionar, text="Altura (mm):").pack()
 entry_altura = tk.Entry(frame_adicionar)
 entry_altura.pack()
 
-tk.Label(frame_adicionar, text="Comprimento (m):").pack()
-entry_comprimento = tk.Entry(frame_adicionar)
-entry_comprimento.pack()
+tk.Label(frame_adicionar, text="Peso (kg):").pack()
+entry_peso = tk.Entry(frame_adicionar)
+entry_peso.pack()
 
 tk.Label(frame_adicionar, text="Espessura (mm):").pack()
 entry_espessura = tk.Entry(frame_adicionar)
 entry_espessura.pack()
+
+tk.Label(frame_adicionar, text="Material:").pack()
+combo_material = ttk.Combobox(frame_adicionar, values=["Inox", "Aço", "Alumínio"])
+combo_material.set("Inox")
+combo_material.pack()
+combo_material.bind("<<ComboboxSelected>>", material_selected)
 
 tk.Button(frame_adicionar, text="Adicionar Peça", command=adicionar_peca, bg="blue", fg="white").pack(pady=10)
 
@@ -276,11 +325,12 @@ right_frame = tk.Frame(panedwindow)
 right_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
 panedwindow.add(right_frame)
 
-tree = ttk.Treeview(right_frame, columns=("Largura", "Altura", "Comprimento", "Espessura"), show="headings")
+tree = ttk.Treeview(right_frame, columns=("Largura", "Altura", "Peso", "Espessura", "Material"), show="headings")
 tree.heading("Largura", text="Largura (mm)")
 tree.heading("Altura", text="Altura (mm)")
-tree.heading("Comprimento", text="Comprimento (m)")
+tree.heading("Peso", text="Peso (kg)")
 tree.heading("Espessura", text="Espessura (mm)")
+tree.heading("Material", text="Material")
 tree.pack(fill=tk.BOTH, expand=True)
 
 # Botões de ação
@@ -292,7 +342,7 @@ tk.Button(button_frame, text="Remover Tudo", command=remover_tudo, bg="black", f
 tk.Button(button_frame, text="Editar Peça", command=editar_peca, bg="orange", fg="black").pack(side=tk.LEFT, padx=5)
 tk.Button(button_frame, text="Calcular Preço", command=calcular_manual, bg="green", fg="white").pack(side=tk.LEFT, padx=5)
 
-label_resultado = tk.Label(right_frame, text="Peso Total: 0 kg | Preço Total: R$ 0.00")
+label_resultado = tk.Label(right_frame, text="Preço Total: R$ 0.00")
 label_resultado.pack()
 
 root.mainloop()
