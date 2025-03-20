@@ -47,7 +47,7 @@ PESO_CHAPA = {
     19.05: 149.39, 22.23: 174.29, 25.4: 199.19, 26.99: 211.64, 28.58: 224.09,
     30.16: 236.53, 31.75: 249.98, 33.34: 261.43, 34.93: 273.88
 }
-
+#CreateBy Tiagotj7.dev
 # Fator de preço padrão (inicialmente para Inox)
 current_preco_kg = Decimal("2.03333")
 
@@ -109,7 +109,7 @@ def adicionar_peca():
         tree.insert("", "end", values=(entry_largura.get(), entry_altura.get(), entry_peso.get(), entry_espessura.get(), combo_material.get()))
         salvar_estado()  # Salvar estado após adicionar a peça
         limpar_campos()
-
+#CreateBy Tiagotj7.dev
 # Função para adicionar múltiplas peças
 def adicionar_multiplas_pecas():
     num_pecas = entry_num_pecas.get()
@@ -200,7 +200,7 @@ def reverter():
             tree.delete(item)
         for valores in estado_salvo:
             tree.insert("", "end", values=valores)
-
+#CreateBy Tiagotj7.dev
 # Função para ler arquivo DXF
 def ler_dxf(arquivo_dxf):
     try:
@@ -298,7 +298,7 @@ panedwindow.pack(fill=tk.BOTH, expand=True)
 left_frame = tk.Frame(panedwindow, width=400)
 left_frame.pack(fill=tk.Y, padx=10, pady=10)
 panedwindow.add(left_frame)
-
+#CreateBy Tiagotj7.dev
 # Frame para seleção de arquivos e dados manual
 frame_arquivos = tk.Frame(left_frame)
 frame_arquivos.pack()
@@ -360,3 +360,4 @@ label_resultado = tk.Label(right_frame, text="Preço Total: R$ 0.00")
 label_resultado.pack()
 
 root.mainloop()
+#CreateBy Tiagotj7.dev

@@ -40,7 +40,7 @@ def func_inox():
     entry_espessura.delete(0, tk.END)
     entry_espessura.insert(0, "0.84")
     calcular_manual()
-
+#CreateBy Tiagotj7.dev
 def func_aco():
     global current_preco_kg
     # Para aço, fator = 22.46/7.8 ≈ 2.878205128205128205, usamos mais dígitos para precisão exata.
@@ -77,7 +77,7 @@ def material_selected(event):
         func_aco()
     elif material == "Alumínio":
         func_aluminio()
-
+#CreateBy Tiagotj7.dev
 # Função para adicionar peça na tabela manual
 def adicionar_peca():
     if entry_largura.get() and entry_altura.get() and entry_peso.get() and entry_espessura.get() and combo_material.get():
@@ -136,7 +136,7 @@ def editar_peca():
         combo_material.set(valores[4])
         salvar_estado()  # Salvar o estado antes de editar a peça
         tree.delete(item_selecionado)
-
+#CreateBy Tiagotj7.dev
 # Função para calcular preço manualmente usando Decimal
 def calcular_manual():
     total_preco = Decimal("0.00")
@@ -346,3 +346,5 @@ label_resultado = tk.Label(right_frame, text="Preço Total: R$ 0.00")
 label_resultado.pack()
 
 root.mainloop()
+
+#CreateBy Tiagotj7.dev
