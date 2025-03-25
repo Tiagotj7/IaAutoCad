@@ -26,7 +26,7 @@ def verificar_expiracao(root):
                 f.write(inicio.strftime("%Y-%m-%d %H:%M:%S"))
         agora = datetime.datetime.now()
         elapsed = agora - inicio
-        remaining = datetime.timedelta(minutes=25) - elapsed
+        remaining = datetime.timedelta(hours = 1) - elapsed
         if remaining.total_seconds() <= 0:
             messagebox.showinfo("Expirado", "Versão de teste expirada. Contate o suporte.")
             root.destroy()
